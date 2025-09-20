@@ -62,7 +62,7 @@ Response:"""
                 modelId=model_id,
                 body=json.dumps({
                     "messages": [
-                        {"role": "user", "content": "your prompt here"}
+                        {"role": "user", "content": prompt}
                     ],
                     "max_tokens": 512,
                     "temperature": 0.7,
