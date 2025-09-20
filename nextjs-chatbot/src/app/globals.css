@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  }
+  body {
+    @apply font-sf text-text-primary;
+  }
+}
+
+@layer components {
+  .chat-bubble {
+    @apply max-w-xs lg:max-w-md px-4 py-3 rounded-ios break-words shadow-ios;
+  }
+  
+  .chat-bubble-user {
+    @apply bg-primary text-white ml-auto;
+  }
+  
+  .chat-bubble-bot {
+    @apply bg-surface text-text-primary border border-gray-100;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 bg-surface border border-gray-200 rounded-ios focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-ios font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-surface text-primary px-4 py-2 rounded-ios border border-gray-200 font-medium transition-all duration-200 hover:bg-gray-50 active:scale-95;
+  }
+  
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+}

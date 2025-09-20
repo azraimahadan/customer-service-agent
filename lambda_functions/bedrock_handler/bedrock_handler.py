@@ -61,8 +61,10 @@ Response:"""
             response = bedrock_runtime.invoke_model(
                 modelId=model_id,
                 body=json.dumps({
-                    "prompt": prompt,
-                    "max_gen_len": 512,
+                    "messages": [
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 512,
                     "temperature": 0.7,
                     "top_p": 0.9
                 })
