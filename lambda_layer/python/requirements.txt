@@ -1,5 +1,2 @@
 boto3==1.40.35
 requests==2.31.0
-langchain-aws==0.2.33
-pydantic
-pydantic-core

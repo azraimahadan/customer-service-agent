@@ -93,10 +93,7 @@ class CoreStack(Stack):
                             actions=[
                                 "bedrock:InvokeModel"
                             ],
-                            resources=[
-                                "arn:aws:bedrock:*::foundation-model/meta.llama3-3-70b-instruct-v1:0",
-                                "arn:aws:bedrock:*::foundation-model/meta.llama3-2-*"
-                            ]
+                            resources=["*"]
                         )
                     ]
                 )

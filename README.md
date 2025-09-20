@@ -16,14 +16,46 @@ A deployable prototype that accepts voice and image inputs to troubleshoot Unifi
 # Clone and setup
 git clone <repo-url>
 cd customer-service-agent
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-npm install -g aws-cdk
 
-# Deploy
-cdk bootstrap
-./deploy.sh
+# Setup virtual environment and dependencies
+python setup.py
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# Unix/Linux/macOS:
+source venv/bin/activate
+
+# Deploy to AWS
+./deploy.sh        # Unix/Linux/macOS
+# or
+deploy.bat         # Windows
+```
+
+## Project Structure
+
+```
+customer-service-agent/
+├── lambda_functions/          # AWS Lambda function code
+│   ├── upload_handler/        # Receives image/audio uploads
+│   ├── transcribe_handler/    # Speech-to-text conversion
+│   ├── image_analysis_handler/# Rekognition analysis
+│   ├── bedrock_handler/       # AI troubleshooting
+│   └── action_executor/       # Execute remediation actions
+├── stacks/                    # CDK infrastructure code
+│   ├── core_stack.py         # S3 buckets, IAM roles
+│   ├── ml_stack.py           # Rekognition, Bedrock
+│   ├── api_stack.py          # API Gateway, Lambda
+│   └── web_stack.py          # Static web hosting
+├── web_client/               # React frontend
+│   ├── src/                  # React components
+│   └── public/               # Static assets
+├── tests/                    # Unit tests
+├── scripts/                  # Utility scripts
+├── sample_data/              # Test data
+├── app.py                    # CDK app entry point
+├── requirements.txt          # Python dependencies
+└── setup.py                  # Environment setup script
 ```
 
 ## Components
@@ -38,7 +70,7 @@ cdk bootstrap
 - `upload_handler`: Receives image/audio uploads
 - `transcribe_handler`: Speech-to-text conversion
 - `image_analysis_handler`: Rekognition analysis
-- `bedrock_agent_handler`: AI troubleshooting orchestration
+- `bedrock_handler`: AI troubleshooting orchestration
 - `action_executor`: Execute remediation actions
 
 ### Web Client
@@ -55,11 +87,39 @@ cdk bootstrap
 ## Testing
 
 ```bash
+# Activate virtual environment first
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+
 # Run unit tests
 pytest tests/
 
-# Run smoke test
-python scripts/smoke_test.py
+# Run smoke test (after deployment)
+python scripts/smoke_test.py <API_URL>
+```
+
+## Development
+
+```bash
+# Setup development environment
+python setup.py
+
+# Activate virtual environment
+source venv/bin/activate  # Unix/Linux/macOS
+# or
+venv\Scripts\activate     # Windows
+
+# Install additional dev dependencies
+pip install pytest black flake8
+
+# Run linting
+flake8 lambda_functions/ stacks/
+black lambda_functions/ stacks/
+
+# Deploy individual stacks for testing
+cdk deploy CustomerServiceCore
+cdk deploy CustomerServiceML
+cdk deploy CustomerServiceApi
+cdk deploy CustomerServiceWeb
 ```
 
 ## Security
@@ -74,3 +134,30 @@ python scripts/smoke_test.py
 - S3 lifecycle policies for dev
 - Small Bedrock model (Claude Haiku)
 - CloudWatch log retention limits
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Virtual Environment Issues**
+   ```bash
+   # Remove and recreate
+   rm -rf venv
+   python setup.py
+   ```
+
+2. **CDK Bootstrap Issues**
+   ```bash
+   cdk bootstrap --force
+   ```
+
+3. **Permission Issues**
+   - Ensure AWS CLI is configured with appropriate permissions
+   - Check IAM roles have required policies
+
+4. **Node.js Dependencies**
+   ```bash
+   cd web_client
+   rm -rf node_modules package-lock.json
+   npm install
+   ```

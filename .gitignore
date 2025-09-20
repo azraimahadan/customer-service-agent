@@ -1,5 +1,11 @@
+# Virtual Environment
+venv/
+env/
+.env
+
 # CDK
 cdk.out/
+cdk.out2/
 *.js
 *.d.ts
 node_modules/
@@ -25,18 +31,13 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
-
-# Virtual environments
-venv/
-env/
-ENV/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
@@ -44,17 +45,7 @@ Thumbs.db
 
 # Logs
 *.log
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# React build
-web_client/build/
-web_client/node_modules/
+logs/
 
 # AWS
 .aws/
@@ -62,6 +53,11 @@ web_client/node_modules/
 # Test coverage
 .coverage
 htmlcov/
+.pytest_cache/
+
+# Web client build
+web_client/build/
+web_client/dist/
 
 # Temporary files
 *.tmp

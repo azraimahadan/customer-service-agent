@@ -17,9 +17,15 @@ for /f "tokens=*" %%i in ('aws sts get-caller-identity --query Account --output 
 for /f "tokens=*" %%i in ('aws configure get region') do set AWS_REGION=%%i
 echo 📍 Deploying to Account: %AWS_ACCOUNT%, Region: %AWS_REGION%
 
-REM Install Python dependencies
-echo 📦 Installing Python dependencies...
-pip install -r requirements.txt
+REM Check if virtual environment exists
+if not exist "venv\Scripts\activate.bat" (
+    echo 📦 Setting up virtual environment...
+    python setup.py
+)
+
+REM Activate virtual environment
+echo 🔧 Activating virtual environment...
+call venv\Scripts\activate.bat
 
 REM Install CDK if not present
 where cdk >nul 2>&1

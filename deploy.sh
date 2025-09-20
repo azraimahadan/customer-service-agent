@@ -17,9 +17,15 @@ AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 AWS_REGION=$(aws configure get region)
 echo "📍 Deploying to Account: $AWS_ACCOUNT, Region: $AWS_REGION"
 
-# Install Python dependencies
-echo "📦 Installing Python dependencies..."
-pip install -r requirements.txt
+# Check if virtual environment exists
+if [ ! -d "venv" ]; then
+    echo "📦 Setting up virtual environment..."
+    python3 setup.py
+fi
+
+# Activate virtual environment
+echo "🔧 Activating virtual environment..."
+source venv/bin/activate
 
 # Install CDK if not present
 if ! command -v cdk &> /dev/null; then
