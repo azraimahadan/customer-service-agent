@@ -1,0 +1,12 @@
+# This is a placeholder for a sample router image
+# In a real implementation, this would be a JPEG image file
+# showing a Unifi router with potential issues like:
+# - "No Service" error message on screen
+# - Unplugged cables
+# - LED status indicators
+# - Router model information
+
+# To use real images:
+# 1. Replace this file with actual router images
+# 2. Include various scenarios: working router, error states, cable issues
+# 3. Label images for Rekognition Custom Labels training

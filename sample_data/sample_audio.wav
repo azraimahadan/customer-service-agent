@@ -1,0 +1,9 @@
+# This is a placeholder for sample audio file
+# In a real implementation, this would be a WAV audio file
+# with customer voice saying something like:
+# "My Unifi TV subscription shows 'No Service' and HDMI is plugged"
+
+# To use real audio:
+# 1. Replace this file with actual WAV audio recordings
+# 2. Include various customer issue descriptions
+# 3. Test different accents and speech patterns

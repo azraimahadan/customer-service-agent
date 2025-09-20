@@ -1,0 +1,691 @@
+{
+  "version": "34.0.0",
+  "artifacts": {
+    "CustomerServiceCore.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "CustomerServiceCore.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "CustomerServiceCore": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "CustomerServiceCore.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c66e937491c4890606f4c9bceffe53ff6628d0fb3bb2f0d9ec0bf6077db02bad.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "CustomerServiceCore.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "CustomerServiceCore.assets"
+      ],
+      "metadata": {
+        "/CustomerServiceCore/StorageBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "StorageBucket19DB2FF8"
+          }
+        ],
+        "/CustomerServiceCore/StorageBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "StorageBucketPolicy41A048DB"
+          }
+        ],
+        "/CustomerServiceCore/StorageBucket/AutoDeleteObjectsCustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "StorageBucketAutoDeleteObjectsCustomResource105C81BD"
+          }
+        ],
+        "/CustomerServiceCore/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+          }
+        ],
+        "/CustomerServiceCore/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+          }
+        ],
+        "/CustomerServiceCore/LambdaExecutionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaExecutionRoleD5C26073"
+          }
+        ],
+        "/CustomerServiceCore/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/CustomerServiceCore/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/CustomerServiceCore/Exports/Output{\"Fn::GetAtt\":[\"StorageBucket19DB2FF8\",\"Arn\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttStorageBucket19DB2FF8Arn891486CC"
+          }
+        ],
+        "/CustomerServiceCore/Exports/Output{\"Ref\":\"StorageBucket19DB2FF8\"}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputRefStorageBucket19DB2FF8E6209EFA"
+          }
+        ],
+        "/CustomerServiceCore/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/CustomerServiceCore/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "CustomerServiceCore"
+    },
+    "CustomerServiceML.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "CustomerServiceML.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "CustomerServiceML": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "CustomerServiceML.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f1038b17e09b253e3b021cf2333a111b447bcbbf01348e5b0d3cc978bb431c8a.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "CustomerServiceML.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "CustomerServiceML.assets"
+      ],
+      "metadata": {
+        "/CustomerServiceML/RouterDetectionProject": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RouterDetectionProject"
+          }
+        ],
+        "/CustomerServiceML/RekognitionProjectArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RekognitionProjectArn"
+          }
+        ],
+        "/CustomerServiceML/BedrockAgentId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BedrockAgentId"
+          }
+        ],
+        "/CustomerServiceML/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/CustomerServiceML/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/CustomerServiceML/Exports/Output{\"Fn::GetAtt\":[\"RouterDetectionProject\",\"Arn\"]}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ExportsOutputFnGetAttRouterDetectionProjectArn041E5521"
+          }
+        ],
+        "/CustomerServiceML/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/CustomerServiceML/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "CustomerServiceML"
+    },
+    "CustomerServiceApi.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "CustomerServiceApi.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "CustomerServiceApi": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "CustomerServiceApi.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/273801244e05ce036f2f981ac1924830f757746212850c193b88dc12b2eb46e4.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "CustomerServiceApi.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "CustomerServiceCore",
+        "CustomerServiceML",
+        "CustomerServiceApi.assets"
+      ],
+      "metadata": {
+        "/CustomerServiceApi/CommonLayer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CommonLayer306767A0"
+          }
+        ],
+        "/CustomerServiceApi/UploadHandler/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UploadHandlerServiceRole8CD4AA9A"
+          }
+        ],
+        "/CustomerServiceApi/UploadHandler/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UploadHandlerServiceRoleDefaultPolicy63BF30CF"
+          }
+        ],
+        "/CustomerServiceApi/UploadHandler/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UploadHandler4CB020C5"
+          }
+        ],
+        "/CustomerServiceApi/TranscribeHandler/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TranscribeHandlerServiceRole91A45336"
+          }
+        ],
+        "/CustomerServiceApi/TranscribeHandler/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TranscribeHandlerServiceRoleDefaultPolicy2AAC8651"
+          }
+        ],
+        "/CustomerServiceApi/TranscribeHandler/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TranscribeHandler8E4C16AC"
+          }
+        ],
+        "/CustomerServiceApi/ImageAnalysisHandler/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ImageAnalysisHandlerServiceRoleCDBA021F"
+          }
+        ],
+        "/CustomerServiceApi/ImageAnalysisHandler/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ImageAnalysisHandlerServiceRoleDefaultPolicyBCCA18B7"
+          }
+        ],
+        "/CustomerServiceApi/ImageAnalysisHandler/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ImageAnalysisHandlerB09FB8A4"
+          }
+        ],
+        "/CustomerServiceApi/BedrockHandler/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BedrockHandlerServiceRole4824177D"
+          }
+        ],
+        "/CustomerServiceApi/BedrockHandler/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BedrockHandlerServiceRoleDefaultPolicy5F4A95FB"
+          }
+        ],
+        "/CustomerServiceApi/BedrockHandler/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BedrockHandler433D43D0"
+          }
+        ],
+        "/CustomerServiceApi/ActionExecutor/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ActionExecutorServiceRole676E9796"
+          }
+        ],
+        "/CustomerServiceApi/ActionExecutor/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ActionExecutorServiceRoleDefaultPolicy31EB580E"
+          }
+        ],
+        "/CustomerServiceApi/ActionExecutor/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ActionExecutor3835C2EC"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiB26A519C"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/CloudWatchRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiCloudWatchRole1B59907C"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Account": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiAccount189A0EBB"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Deployment/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiDeployment7AA63B647928e050a951969baef1de2d06673d26"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/DeploymentStage.prod/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiDeploymentStageprodF8065B7C"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Endpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiEndpointDEA50B40"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiOPTIONSA443078E"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/upload/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiupload13E8287F"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/upload/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiuploadOPTIONSB014A0D0"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/upload/POST/ApiPermission.CustomerServiceApi5FB76A4E.POST..upload": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiuploadPOSTApiPermissionCustomerServiceApi5FB76A4EPOSTuploadC60D9D76"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/upload/POST/ApiPermission.Test.CustomerServiceApi5FB76A4E.POST..upload": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiuploadPOSTApiPermissionTestCustomerServiceApi5FB76A4EPOSTuploadB8976BFE"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/upload/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiuploadPOSTD80475A8"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/transcribe/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitranscribeCF39931B"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/transcribe/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitranscribeOPTIONS4F973909"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/transcribe/POST/ApiPermission.CustomerServiceApi5FB76A4E.POST..transcribe": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitranscribePOSTApiPermissionCustomerServiceApi5FB76A4EPOSTtranscribe887B557F"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/transcribe/POST/ApiPermission.Test.CustomerServiceApi5FB76A4E.POST..transcribe": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitranscribePOSTApiPermissionTestCustomerServiceApi5FB76A4EPOSTtranscribe779755BD"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/transcribe/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitranscribePOST47D3A674"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/analyze-image/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApianalyzeimage5AB884D1"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/analyze-image/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApianalyzeimageOPTIONS3F124134"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/analyze-image/POST/ApiPermission.CustomerServiceApi5FB76A4E.POST..analyze-image": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApianalyzeimagePOSTApiPermissionCustomerServiceApi5FB76A4EPOSTanalyzeimage34A0B394"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/analyze-image/POST/ApiPermission.Test.CustomerServiceApi5FB76A4E.POST..analyze-image": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApianalyzeimagePOSTApiPermissionTestCustomerServiceApi5FB76A4EPOSTanalyzeimageD187D36D"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/analyze-image/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApianalyzeimagePOST35BD505A"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/troubleshoot/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitroubleshoot64961C37"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/troubleshoot/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitroubleshootOPTIONSD28AB1D3"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/troubleshoot/POST/ApiPermission.CustomerServiceApi5FB76A4E.POST..troubleshoot": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitroubleshootPOSTApiPermissionCustomerServiceApi5FB76A4EPOSTtroubleshootFE435CEA"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/troubleshoot/POST/ApiPermission.Test.CustomerServiceApi5FB76A4E.POST..troubleshoot": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitroubleshootPOSTApiPermissionTestCustomerServiceApi5FB76A4EPOSTtroubleshoot128CB64F"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/troubleshoot/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApitroubleshootPOSTE2ECBB81"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/execute-action/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiexecuteactionFFB1E8A9"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/execute-action/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiexecuteactionOPTIONS86A91134"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/execute-action/POST/ApiPermission.CustomerServiceApi5FB76A4E.POST..execute-action": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiexecuteactionPOSTApiPermissionCustomerServiceApi5FB76A4EPOSTexecuteaction84B0BAFD"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/execute-action/POST/ApiPermission.Test.CustomerServiceApi5FB76A4E.POST..execute-action": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiexecuteactionPOSTApiPermissionTestCustomerServiceApi5FB76A4EPOSTexecuteaction57DFA89D"
+          }
+        ],
+        "/CustomerServiceApi/CustomerServiceApi/Default/execute-action/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomerServiceApiexecuteactionPOSTE7B6F87E"
+          }
+        ],
+        "/CustomerServiceApi/ApiUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiUrl"
+          }
+        ],
+        "/CustomerServiceApi/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/CustomerServiceApi/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/CustomerServiceApi/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/CustomerServiceApi/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "CustomerServiceApi"
+    },
+    "CustomerServiceWeb.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "CustomerServiceWeb.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "CustomerServiceWeb": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "CustomerServiceWeb.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9a8767d9ffd0ea7d19c8f37f3864b5e217ad413a0ac13ab094ec47545a5d882b.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "CustomerServiceWeb.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "CustomerServiceWeb.assets"
+      ],
+      "metadata": {
+        "/CustomerServiceWeb/WebBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebBucket12880F5B"
+          }
+        ],
+        "/CustomerServiceWeb/WebBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebBucketPolicy95D08FAA"
+          }
+        ],
+        "/CustomerServiceWeb/WebBucket/AutoDeleteObjectsCustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebBucketAutoDeleteObjectsCustomResource9C1A079F"
+          }
+        ],
+        "/CustomerServiceWeb/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+          }
+        ],
+        "/CustomerServiceWeb/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+          }
+        ],
+        "/CustomerServiceWeb/WebDistribution/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebDistribution59C46482"
+          }
+        ],
+        "/CustomerServiceWeb/WebDeployment/AwsCliLayer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebDeploymentAwsCliLayer79C1EFEA"
+          }
+        ],
+        "/CustomerServiceWeb/WebDeployment/CustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebDeploymentCustomResource08EEC474"
+          }
+        ],
+        "/CustomerServiceWeb/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+          }
+        ],
+        "/CustomerServiceWeb/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF"
+          }
+        ],
+        "/CustomerServiceWeb/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536"
+          }
+        ],
+        "/CustomerServiceWeb/WebUrl": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebUrl"
+          }
+        ],
+        "/CustomerServiceWeb/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/CustomerServiceWeb/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/CustomerServiceWeb/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/CustomerServiceWeb/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "CustomerServiceWeb"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}
