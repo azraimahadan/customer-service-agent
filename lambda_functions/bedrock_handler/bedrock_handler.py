@@ -1,6 +1,19 @@
+## cdk deploy --require-approval never
+##cdk deploy CustomerServiceApi --require-approval never
+#pip install -r requirements.txt -t .
 import json
 import boto3
 import os
+
+# 1. Import ChatBedrock
+from langchain_aws import ChatBedrock
+
+# 2. Initialize once (outside lambda_handler for efficiency)
+llm = ChatBedrock(
+    model_id="openai.gpt-oss-120b-1:0",  # or meta.llama3-3-70b-instruct-v1:0
+    temperature=0.2,
+    max_tokens=1000
+)
 
 bedrock_runtime = boto3.client('bedrock-runtime')
 polly_client = boto3.client('polly')
@@ -26,54 +39,35 @@ def lambda_handler(event, context):
         )
         analysis_data = json.loads(analysis_obj['Body'].read())
         
-        # Prepare input for Bedrock agent
-        user_input = f"""
+        # 3. Build messages array for LangChain
+        messages = [
+            (
+                "system",
+                "You are a Unifi TV customer service agent. Analyze this customer issue and provide troubleshooting steps."
+            ),
+            (
+                "human",
+                f"""
         Customer Issue: {transcript_data['text']}
-        
-        Image Analysis:
+
+        Image Analysis Results:
         - Detected Labels: {[label['Name'] for label in analysis_data.get('labels', [])]}
         - Detected Text: {analysis_data.get('extracted_text', [])}
         - Custom Labels: {[label['Name'] for label in analysis_data.get('custom_labels', [])]}
-        
-        Please analyze this Unifi TV issue and provide troubleshooting steps.
+
+        Provide a helpful response with specific troubleshooting steps. If you see "No Service" error or similar issues, suggest checking cables, restarting the set-top box, and re-provisioning the service.
         """
-        
-        # Call Bedrock with Llama model directly
+            ),
+        ]
+
         try:
-            bedrock_runtime = boto3.client('bedrock-runtime')
-            
-            # Use Llama 3.3 70B Instruct model
-            model_id = "meta.llama3-3-70b-instruct-v1:0"
-            
-            prompt = f"""You are a Unifi TV customer service agent. Analyze this customer issue and provide troubleshooting steps.
-
-Customer Issue: {transcript_data['text']}
-
-Image Analysis Results:
-- Detected Labels: {[label['Name'] for label in analysis_data.get('labels', [])]}
-- Detected Text: {analysis_data.get('extracted_text', [])}
-- Custom Labels: {[label['Name'] for label in analysis_data.get('custom_labels', [])]}
-
-Provide a helpful response with specific troubleshooting steps. If you see "No Service" error or similar issues, suggest checking cables, restarting the set-top box, and re-provisioning the service.
-
-Response:"""
-
-            response = bedrock_runtime.invoke_model(
-                modelId=model_id,
-                body=json.dumps({
-                    "prompt": prompt,
-                    "max_gen_len": 512,
-                    "temperature": 0.7,
-                    "top_p": 0.9
-                })
-            )
-            
-            response_body = json.loads(response['body'].read())
-            agent_response = response_body.get('generation', '')
-            
+            ai_msg = llm.invoke(messages)
+            print(f"DEBUG: LangChain AIMessage = {ai_msg}")  # 👀 log full message
+            agent_response = ai_msg.content if hasattr(ai_msg, "content") else str(ai_msg)
         except Exception as e:
-            print(f"Bedrock Llama call failed: {e}")
+            print(f"LangChain Bedrock call failed: {e}")
             agent_response = generate_fallback_response(transcript_data['text'], analysis_data)
+
         
         # Generate TTS audio
         tts_response = polly_client.synthesize_speech(
