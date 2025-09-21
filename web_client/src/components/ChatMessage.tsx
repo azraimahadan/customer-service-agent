@@ -6,9 +6,10 @@ import Image from 'next/image'
 
 interface ChatMessageProps {
   message: Message
+  onActionClick?: (action: string) => void
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+export default function ChatMessage({ message, onActionClick }: ChatMessageProps) {
   const isUser = message.sender === 'user'
 
   return (
@@ -55,6 +56,23 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             <audio controls className="w-full h-8">
               <source src={message.audioResponse} type="audio/mpeg" />
             </audio>
+          </div>
+        )}
+        
+        {message.actions && message.actions.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-surface-200">
+            <p className="text-sm font-medium text-text-secondary mb-2">Suggested Actions:</p>
+            <div className="flex flex-wrap gap-2">
+              {message.actions.map((action, index) => (
+                <button
+                  key={index}
+                  onClick={() => onActionClick?.(action)}
+                  className="btn-secondary text-xs px-3 py-1.5 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+                >
+                  {action}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         

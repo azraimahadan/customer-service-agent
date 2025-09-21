@@ -56,11 +56,11 @@ export class ApiClient {
     return this.makeRequest<UploadResponse>('/upload', { method: 'POST', body: JSON.stringify(body) })
   }
 
-  static async transcribeAudio(sessionId: string): Promise<ApiResponse<any>> {
+  static async transcribeAudio(sessionId: string): Promise<ApiResponse<{transcription: string}>> {
     return this.makeRequest('/transcribe', { method: 'POST', body: JSON.stringify({ session_id: sessionId }) })
   }
 
-  static async analyzeImage(sessionId: string): Promise<ApiResponse<any>> {
+  static async analyzeImage(sessionId: string): Promise<ApiResponse<{analysis: string}>> {
     return this.makeRequest('/analyze-image', { method: 'POST', body: JSON.stringify({ session_id: sessionId }) })
   }
 
@@ -68,7 +68,7 @@ export class ApiClient {
     return this.makeRequest<TroubleshootResponse>('/troubleshoot', { method: 'POST', body: JSON.stringify({ session_id: sessionId }) })
   }
 
-  static async executeAction(sessionId: string, action: string): Promise<ApiResponse<any>> {
+  static async executeAction(sessionId: string, action: string): Promise<ApiResponse<{message: string}>> {
     return this.makeRequest('/execute-action', { method: 'POST', body: JSON.stringify({ session_id: sessionId, action }) })
   }
 
