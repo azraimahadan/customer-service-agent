@@ -1,0 +1,37 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+      nodejs: 18
+    commands:
+      - echo Installing dependencies...
+      - npm install -g aws-cdk
+      - python -m pip install --upgrade pip
+      - pip install -r requirements.txt
+      
+  pre_build:
+    commands:
+      - echo Running tests...
+      - python -m pytest tests/ -v
+      - echo Installing web client dependencies...
+      - cd web_client && npm install && cd ..
+      
+  build:
+    commands:
+      - echo Building web client...
+      - cd web_client && npm run build && cd ..
+      - echo Deploying with CDK...
+      - cdk bootstrap
+      - cdk deploy --all --require-approval never
+      
+  post_build:
+    commands:
+      - echo Running smoke tests...
+      - python scripts/smoke_test.py
+      - echo Deployment completed successfully
+
+artifacts:
+  files:
+    - '**/*'
