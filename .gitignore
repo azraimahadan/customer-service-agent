@@ -1,15 +1,3 @@
-# Virtual Environment
-venv/
-env/
-.env
-
-# CDK
-cdk.out/
-cdk.out2/
-*.js
-*.d.ts
-node_modules/
-
 # Python
 __pycache__/
 *.py[cod]
@@ -31,13 +19,28 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# CDK
+cdk.out/
+*.d.ts
+node_modules/
+
+# AWS
+.aws/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
@@ -45,20 +48,123 @@ Thumbs.db
 
 # Logs
 *.log
-logs/
 
-# AWS
-.aws/
+# Dependencies (should be in virtual environment)
+# Python packages
+_pytest/
+_yaml/
+annotated_types/
+annotated_types-*.dist-info/
+anyio/
+anyio-*.dist-info/
+attr/
+attrs/
+attrs-*.dist-info/
+aws_cdk/
+aws_cdk_*
+bin/
+boto3/
+boto3-*.dist-info/
+botocore/
+botocore-*.dist-info/
+cattr/
+cattrs/
+cattrs-*.dist-info/
+certifi/
+certifi-*.dist-info/
+charset_normalizer/
+charset_normalizer-*.dist-info/
+colorama/
+colorama-*.dist-info/
+constructs/
+constructs-*.dist-info/
+dateutil/
+dotenv/
+h11/
+h11-*.dist-info/
+httpcore/
+httpcore-*.dist-info/
+httpx/
+httpx-*.dist-info/
+idna/
+idna-*.dist-info/
+importlib_resources/
+importlib_resources-*.dist-info/
+iniconfig/
+iniconfig-*.dist-info/
+jmespath/
+jmespath-*.dist-info/
+jsii/
+jsii-*.dist-info/
+jsonpatch-*.dist-info/
+jsonpointer-*.dist-info/
+langchain_aws/
+langchain_aws-*.dist-info/
+langchain_core/
+langchain_core-*.dist-info/
+langsmith/
+langsmith-*.dist-info/
+numpy/
+numpy-*.dist-info/
+numpy.libs/
+orjson/
+orjson-*.dist-info/
+packaging/
+packaging-*.dist-info/
+pluggy/
+pluggy-*.dist-info/
+publication-*.dist-info/
+pydantic/
+pydantic_core/
+pydantic_core-*.dist-info/
+pydantic-*.dist-info/
+pytest/
+pytest-*.dist-info/
+python_dateutil-*.dist-info/
+python_dotenv-*.dist-info/
+PyYAML-*.dist-info/
+requests/
+requests_toolbelt/
+requests_toolbelt-*.dist-info/
+requests-*.dist-info/
+s3transfer/
+s3transfer-*.dist-info/
+six-*.dist-info/
+sniffio/
+sniffio-*.dist-info/
+tenacity/
+tenacity-*.dist-info/
+typeguard/
+typeguard-*.dist-info/
+typing_extensions-*.dist-info/
+typing_inspection/
+typing_inspection-*.dist-info/
+urllib3/
+urllib3-*.dist-info/
+yaml/
+zstandard/
+zstandard-*.dist-info/
 
-# Test coverage
+# Standalone dependency files
+jsonpatch.py
+jsonpointer.py
+publication.py
+py.py
+six.py
+typing_extensions.py
+*.whl
+
+# Build artifacts
+lambda_layer/
+
+# Test artifacts
+.pytest_cache/
 .coverage
 htmlcov/
-.pytest_cache/
 
-# Web client build
-web_client/build/
-web_client/dist/
-
-# Temporary files
-*.tmp
-*.temp
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

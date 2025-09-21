@@ -30,28 +30,39 @@ def lambda_handler(event, context):
         try:
             prompt = f"""You are a Unifi TV customer service agent. Analyze this customer issue and provide troubleshooting steps.
 
-Customer Issue: {transcript_data['text']}
+            Customer Issue: {transcript_data['text']}
 
-Image Analysis Results:
-- Detected Labels: {[label['Name'] for label in analysis_data.get('labels', [])]}
-- Detected Text: {analysis_data.get('extracted_text', [])}
-- Custom Labels: {[label['Name'] for label in analysis_data.get('custom_labels', [])]}
+            Image Analysis Results:
+            - Detected Labels: {[label['Name'] for label in analysis_data.get('labels', [])]}
+            - Detected Text: {analysis_data.get('extracted_text', [])}
+            - Custom Labels: {[label['Name'] for label in analysis_data.get('custom_labels', [])]}
 
-Provide a helpful response with specific troubleshooting steps. If you see "No Service" error or similar issues, suggest checking cables, restarting the set-top box, and re-provisioning the service.
+            Provide a helpful response with specific troubleshooting steps. If you see "No Service" error or similar issues, suggest checking cables, restarting the set-top box, and re-provisioning the service.
 
-Response:"""
+            Response:"""
 
-            response = bedrock_runtime.invoke_model(
-                modelId="openai.gpt-oss-120b-1:0",
-                body=json.dumps({
-                    "prompt": prompt,
-                    "max_gen_len": 512,
-                    "temperature": 0.2,
-                })
-            )
-            
-            response_body = json.loads(response['body'].read())
-            agent_response = response_body.get('generation', '')
+            native_request = {
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                "max_completion_tokens": 1024,
+                "temperature": 0.2,
+            }
+
+            request = json.dumps(native_request)
+
+            try:
+                model_id = "openai.gpt-oss-120b-1:0"
+                response = bedrock_runtime.invoke_model(modelId=model_id, body=request)
+            except Exception as e:
+                print(f"ERROR: Can't invoke '{model_id}'. Reason: {e}")
+                exit(1)
+
+            model_response = json.loads(response["body"].read())
+
+            # ✅ Extract only the model-generated text
+            agent_response = model_response["choices"][0]["message"]["content"]
             
         except Exception as e:
             print(f"Bedrock Llama call failed: {e}")
