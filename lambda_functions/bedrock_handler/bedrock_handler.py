@@ -2,6 +2,7 @@ import json
 import boto3
 import os
 from botocore.exceptions import ClientError
+import re
 
 bedrock_runtime = boto3.client('bedrock-runtime')
 polly_client = boto3.client('polly')
@@ -38,7 +39,7 @@ def lambda_handler(event, context):
             - Detected Text: {analysis_data.get('extracted_text', [])}
             - Custom Labels: {[label['Name'] for label in analysis_data.get('custom_labels', [])]}
 
-            Provide a helpful response with specific troubleshooting steps. If you see "No Service" error or similar issues, suggest checking cables, restarting the set-top box, and re-provisioning the service.
+            Provide a helpful response with specific troubleshooting steps. If you see "No Service" error or similar issues, suggest soloutions such as checking cables, restarting the UNIFItv box, or re-provisioning the service.
 
             Response:"""
 
@@ -64,6 +65,8 @@ def lambda_handler(event, context):
 
             # ✅ Extract only the model-generated text
             agent_response = model_response["choices"][0]["message"]["content"]
+            agent_response = re.sub(r"<reasoning>.*?</reasoning>", "", agent_response, flags=re.DOTALL).strip()
+
             
         except Exception as e:
             print(f"Bedrock Llama call failed: {e}")

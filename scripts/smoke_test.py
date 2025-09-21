@@ -122,11 +122,39 @@ def run_smoke_test(api_url):
         print(f"\nSmoke test failed: {str(e)}")
         return False
 
+def get_api_url_from_cdk():
+    """Get API URL from CDK outputs"""
+    import subprocess
+    try:
+        result = subprocess.run(['cdk', 'list', '--json'], capture_output=True, text=True)
+        if result.returncode == 0:
+            # Try to get the API URL from CloudFormation outputs
+            cf_result = subprocess.run(['aws', 'cloudformation', 'describe-stacks', '--stack-name', 'CustomerServiceApi'], capture_output=True, text=True)
+            if cf_result.returncode == 0:
+                import json
+                stacks = json.loads(cf_result.stdout)
+                for stack in stacks['Stacks']:
+                    for output in stack.get('Outputs', []):
+                        if output['OutputKey'] == 'ApiUrl':
+                            return output['OutputValue']
+    except Exception as e:
+        print(f"Could not get API URL automatically: {e}")
+    return None
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    api_url = None
+    
+    # Try to get API URL from command line argument
+    if len(sys.argv) == 2:
+        api_url = sys.argv[1].rstrip('/')
+    else:
+        # Try to get API URL from CDK outputs
+        api_url = get_api_url_from_cdk()
+        
+    if not api_url:
         print("Usage: python smoke_test.py <API_URL>")
+        print("Or run after CDK deployment to auto-detect API URL")
         sys.exit(1)
     
-    api_url = sys.argv[1].rstrip('/')
     success = run_smoke_test(api_url)
     sys.exit(0 if success else 1)
