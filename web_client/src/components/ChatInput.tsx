@@ -74,18 +74,6 @@ export default function ChatInput({
         </div>
       )}
       
-      {recordedAudio && (
-        <div className="mb-4 flex items-center gap-2 p-2 bg-blue-50 rounded-ios border border-blue-200">
-          <span className="text-sm text-blue-700">🎤 Audio recorded</span>
-          <button
-            onClick={onClearRecordedAudio}
-            className="text-blue-500 hover:text-blue-700"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
-      
       <form onSubmit={handleSubmit} className="flex gap-3 items-end">
         <div className="flex-1">
           <textarea
