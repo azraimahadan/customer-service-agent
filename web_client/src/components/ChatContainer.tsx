@@ -157,34 +157,22 @@ export default function ChatContainer() {
     setIsLoading(true)
 
     try {
-      if (type === 'text' && !file) {
-        // Simple text message - provide immediate response
-        const botResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          content: 'I understand you have a question about your Unifi TV service. For the most accurate troubleshooting, please share a photo of any error messages on your screen or record an audio description of the issue you\'re experiencing.',
-          sender: 'bot',
-          timestamp: new Date(),
-          type: 'text'
-        }
-        setMessages(prev => [...prev, botResponse])
-      } else {
-        // Step 1: Upload files
-        setProcessingStep('Uploading files...')
-        const uploadResult = await ApiClient.uploadFiles(
-          type === 'image' ? file : undefined,
-          type === 'audio' ? file as Blob : undefined
-        )
-        
-        if (uploadResult.error) {
-          throw new Error(`Upload failed: ${uploadResult.error}`)
-        }
+      // Step 1: Upload files (including text-only queries)
+      setProcessingStep('Uploading files...')
+      const uploadResult = await ApiClient.uploadFiles(
+        type === 'image' ? file : undefined,
+        type === 'audio' ? file as Blob : undefined
+      )
 
-        const sessionId = uploadResult.data!.session_id
-        setCurrentSessionId(sessionId)
-        
-        // Process with backend pipeline
-        await processWithBackend(sessionId, type === 'image', type === 'audio')
+      if (uploadResult.error) {
+        throw new Error(`Upload failed: ${uploadResult.error}`)
       }
+
+      const sessionId = uploadResult.data!.session_id
+      setCurrentSessionId(sessionId)
+
+      // Process with backend pipeline
+      await processWithBackend(sessionId, type === 'image', type === 'audio')
     } catch (error) {
       console.error('Error sending message:', error)
       setProcessingStep('')
