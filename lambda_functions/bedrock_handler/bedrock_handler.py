@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         session_id = body['session_id']
         
         # Get transcript and image analysis (if they exist)
-        transcript_data = {'text': 'No audio provided'}
+        transcript_data = {'text': 'refer to the context provided'}
         analysis_data = {'labels': [], 'extracted_text': [], 'custom_labels': []}
         
         try:
