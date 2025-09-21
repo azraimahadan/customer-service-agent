@@ -171,14 +171,11 @@ export default function ChatContainer() {
       
       // Upload files or create session with text content
       setProcessingStep(type === 'text' ? 'Processing message...' : 'Uploading files...')
-      let uploadResult: any;
-      if (type === 'text') {
-        uploadResult = await ApiClient.uploadFiles(undefined, undefined, content)
-      } else if (type === 'image') {
-        uploadResult = await ApiClient.uploadFiles(file, undefined, undefined)
-      } else if (type === 'audio') {
-        uploadResult = await ApiClient.uploadFiles(undefined, file as Blob, undefined)
-      }
+      const uploadResult = await ApiClient.uploadFiles(
+        type === 'image' ? file : undefined,
+        type === 'audio' ? file as Blob : undefined,
+        type === 'text' ? content : undefined
+      )
 
       if (uploadResult.error) {
         throw new Error(`${type === 'text' ? 'Session creation' : 'Upload'} failed: ${uploadResult.error}`)
