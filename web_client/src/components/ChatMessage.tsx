@@ -55,7 +55,7 @@ export default function ChatMessage({ message, onActionClick }: ChatMessageProps
             <div className="flex items-center justify-center w-10 h-10 bg-primary-50 rounded-full">
               <Volume2 size={16} className="text-primary-600" />
             </div>
-            <audio controls className="flex-1 h-8">
+            <audio controls autoPlay className="flex-1 h-8">
               <source src={message.audioUrl} type="audio/wav" />
             </audio>
           </div>
@@ -69,6 +69,7 @@ export default function ChatMessage({ message, onActionClick }: ChatMessageProps
             </div>
             <audio 
               controls 
+              autoPlay
               className="w-full h-8" 
               preload="metadata"
               crossOrigin="anonymous"
