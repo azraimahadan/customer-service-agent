@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['react-app'],
+  extends: ['next/core-web-vitals'],
   rules: {
     'no-unused-vars': ['error', { 'varsIgnorePattern': '^_' }]
   }

@@ -24,12 +24,12 @@ export default function ChatMessage({ message, onActionClick }: ChatMessageProps
           <div className="prose prose-sm max-w-none text-base leading-relaxed font-medium">
             <ReactMarkdown
               components={{
-                p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
-                strong: ({children}) => <strong className="font-bold text-gray-900">{children}</strong>,
-                em: ({children}) => <em className="italic text-gray-800">{children}</em>,
-                ul: ({children}) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
-                ol: ({children}) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
-                li: ({children}) => <li className="mb-1">{children}</li>
+                p: ({children}: any) => <p className="mb-2 last:mb-0">{children}</p>,
+                strong: ({children}: any) => <strong className="font-bold text-gray-900">{children}</strong>,
+                em: ({children}: any) => <em className="italic text-gray-800">{children}</em>,
+                ul: ({children}: any) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+                ol: ({children}: any) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                li: ({children}: any) => <li className="mb-1">{children}</li>
               }}
             >
               {message.content}
