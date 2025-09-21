@@ -1,6 +1,7 @@
 import json
 import boto3
 import os
+from botocore.exceptions import ClientError
 
 bedrock_runtime = boto3.client('bedrock-runtime')
 polly_client = boto3.client('polly')
@@ -69,11 +70,24 @@ def lambda_handler(event, context):
             agent_response = generate_fallback_response(transcript_data['text'], analysis_data)
         
         # Generate TTS audio
-        tts_response = polly_client.synthesize_speech(
-            Text=agent_response,
-            OutputFormat='mp3',
-            VoiceId='Joanna'
-        )
+        try:
+            tts_response = polly_client.synthesize_speech(
+                Text=agent_response,
+                OutputFormat='mp3',
+                VoiceId='Joanna'
+            )
+        except ClientError as e:
+            error_code = e.response.get('Error', {}).get('Code')
+            if error_code == 'TextLengthExceededException':
+                truncated_text = agent_response[:2500]
+                print(f"WARNING: Text length exceeded, retrying with truncated text ({len(truncated_text)} chars)")
+                tts_response = polly_client.synthesize_speech(
+                    Text=truncated_text,
+                    OutputFormat='mp3',
+                    VoiceId='Joanna'
+                )
+            else:
+                raise
         
         # Store audio response
         audio_key = f"sessions/{session_id}/response.mp3"

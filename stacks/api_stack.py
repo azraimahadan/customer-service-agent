@@ -16,13 +16,18 @@ class ApiStack(Stack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Lambda layer for common dependencies
-        lambda_layer = _lambda.LayerVersion(
-            self, "CommonLayer",
-            code=_lambda.Code.from_asset("lambda_layer"),
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
-            description="Common dependencies for Lambda functions"
-        )
+        # Lambda layer for common dependencies (optional)
+        try:
+            lambda_layer = _lambda.LayerVersion(
+                self, "CommonLayer",
+                code=_lambda.Code.from_asset("lambda_layer"),
+                compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
+                description="Common dependencies for Lambda functions"
+            )
+            layers = [lambda_layer]
+        except:
+            # If layer creation fails, continue without it
+            layers = []
 
         # Environment variables for all Lambdas
         common_env = {
@@ -39,7 +44,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/upload_handler"),
             timeout=Duration.seconds(30),
             environment=common_env,
-            layers=[lambda_layer]
+            layers=layers
         )
 
         # Transcribe handler Lambda
@@ -50,7 +55,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/transcribe_handler"),
             timeout=Duration.seconds(60),
             environment=common_env,
-            layers=[lambda_layer]
+            layers=layers
         )
 
         # Image analysis handler Lambda
@@ -61,7 +66,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/image_analysis_handler"),
             timeout=Duration.seconds(30),
             environment=common_env,
-            layers=[lambda_layer]
+            layers=layers
         )
 
         # Bedrock agent handler Lambda
@@ -72,7 +77,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/bedrock_handler"),
             timeout=Duration.seconds(60),
             environment=common_env,
-            layers=[lambda_layer]
+            layers=layers
         )
 
         # Action executor Lambda
@@ -83,7 +88,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/action_executor"),
             timeout=Duration.seconds(30),
             environment=common_env,
-            layers=[lambda_layer]
+            layers=layers
         )
 
         # Grant S3 permissions to all Lambdas
