@@ -28,13 +28,25 @@ class WebStack(Stack):
                 origin=origins.S3Origin(web_bucket),
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
             ),
-            default_root_object="index.html"
+            default_root_object="index.html",
+            error_responses=[
+                cloudfront.ErrorResponse(
+                    http_status=404,
+                    response_http_status=200,
+                    response_page_path="/index.html"
+                ),
+                cloudfront.ErrorResponse(
+                    http_status=403,
+                    response_http_status=200,
+                    response_page_path="/index.html"
+                )
+            ]
         )
 
-        # Deploy web assets
+        # Deploy web assets (Next.js static export goes to 'out' directory)
         s3deploy.BucketDeployment(
             self, "WebDeployment",
-            sources=[s3deploy.Source.asset("web_client/build")],
+            sources=[s3deploy.Source.asset("web_client/out")],
             destination_bucket=web_bucket,
             distribution=distribution,
             distribution_paths=["/*"]
