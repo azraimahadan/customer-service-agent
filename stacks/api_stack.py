@@ -16,18 +16,13 @@ class ApiStack(Stack):
                  **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Lambda layer for common dependencies (optional)
-        try:
-            lambda_layer = _lambda.LayerVersion(
-                self, "CommonLayer",
-                code=_lambda.Code.from_asset("lambda_layer"),
-                compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
-                description="Common dependencies for Lambda functions"
-            )
-            layers = [lambda_layer]
-        except:
-            # If layer creation fails, continue without it
-            layers = []
+        # Lambda layer for common dependencies
+        lambda_layer = _lambda.LayerVersion(
+            self, "CommonLayer",
+            code=_lambda.Code.from_asset("lambda_layer"),
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
+            description="Common dependencies for Lambda functions"
+        )
 
         # Environment variables for all Lambdas
         common_env = {
@@ -44,7 +39,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/upload_handler"),
             timeout=Duration.seconds(30),
             environment=common_env,
-            layers=layers
+            layers=[lambda_layer]
         )
 
         # Transcribe handler Lambda
@@ -55,7 +50,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/transcribe_handler"),
             timeout=Duration.seconds(60),
             environment=common_env,
-            layers=layers
+            layers=[lambda_layer]
         )
 
         # Image analysis handler Lambda
@@ -66,7 +61,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/image_analysis_handler"),
             timeout=Duration.seconds(30),
             environment=common_env,
-            layers=layers
+            layers=[lambda_layer]
         )
 
         # Bedrock agent handler Lambda
@@ -77,7 +72,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/bedrock_handler"),
             timeout=Duration.seconds(60),
             environment=common_env,
-            layers=layers
+            layers=[lambda_layer]
         )
 
         # Action executor Lambda
@@ -88,7 +83,7 @@ class ApiStack(Stack):
             code=_lambda.Code.from_asset("lambda_functions/action_executor"),
             timeout=Duration.seconds(30),
             environment=common_env,
-            layers=layers
+            layers=[lambda_layer]
         )
 
         # Grant S3 permissions to all Lambdas
@@ -115,78 +110,46 @@ class ApiStack(Stack):
         bedrock_integration = apigateway.LambdaIntegration(bedrock_handler)
         action_integration = apigateway.LambdaIntegration(action_executor)
 
-        # Common CORS configuration
-        cors_config = {
-            "allow_origins": apigateway.Cors.ALL_ORIGINS,
-            "allow_methods": apigateway.Cors.ALL_METHODS,
-            "allow_headers": ["Content-Type", "Authorization"]
-        }
-
-        # Routes with input validation
+        # Routes
         upload_resource = api.root.add_resource("upload")
-        upload_resource.add_method(
-            "POST", 
-            upload_integration,
-            request_validator=apigateway.RequestValidator(
-                self, "UploadValidator",
-                rest_api=api,
-                validate_request_body=True,
-                validate_request_parameters=True
-            )
+        upload_resource.add_method("POST", upload_integration)
+        upload_resource.add_cors_preflight(
+            allow_origins=apigateway.Cors.ALL_ORIGINS,
+            allow_methods=apigateway.Cors.ALL_METHODS,
+            allow_headers=["Content-Type", "Authorization"]
         )
-        upload_resource.add_cors_preflight(**cors_config)
 
         transcribe_resource = api.root.add_resource("transcribe")
-        transcribe_resource.add_method(
-            "POST", 
-            transcribe_integration,
-            request_validator=apigateway.RequestValidator(
-                self, "TranscribeValidator",
-                rest_api=api,
-                validate_request_body=True,
-                validate_request_parameters=True
-            )
+        transcribe_resource.add_method("POST", transcribe_integration)
+        transcribe_resource.add_cors_preflight(
+            allow_origins=apigateway.Cors.ALL_ORIGINS,
+            allow_methods=apigateway.Cors.ALL_METHODS,
+            allow_headers=["Content-Type", "Authorization"]
         )
-        transcribe_resource.add_cors_preflight(**cors_config)
 
         image_resource = api.root.add_resource("analyze-image")
-        image_resource.add_method(
-            "POST", 
-            image_integration,
-            request_validator=apigateway.RequestValidator(
-                self, "ImageValidator",
-                rest_api=api,
-                validate_request_body=True,
-                validate_request_parameters=True
-            )
+        image_resource.add_method("POST", image_integration)
+        image_resource.add_cors_preflight(
+            allow_origins=apigateway.Cors.ALL_ORIGINS,
+            allow_methods=apigateway.Cors.ALL_METHODS,
+            allow_headers=["Content-Type", "Authorization"]
         )
-        image_resource.add_cors_preflight(**cors_config)
 
         troubleshoot_resource = api.root.add_resource("troubleshoot")
-        troubleshoot_resource.add_method(
-            "POST", 
-            bedrock_integration,
-            request_validator=apigateway.RequestValidator(
-                self, "TroubleshootValidator",
-                rest_api=api,
-                validate_request_body=True,
-                validate_request_parameters=True
-            )
+        troubleshoot_resource.add_method("POST", bedrock_integration)
+        troubleshoot_resource.add_cors_preflight(
+            allow_origins=apigateway.Cors.ALL_ORIGINS,
+            allow_methods=apigateway.Cors.ALL_METHODS,
+            allow_headers=["Content-Type", "Authorization"]
         )
-        troubleshoot_resource.add_cors_preflight(**cors_config)
 
         execute_action_resource = api.root.add_resource("execute-action")
-        execute_action_resource.add_method(
-            "POST", 
-            action_integration,
-            request_validator=apigateway.RequestValidator(
-                self, "ActionValidator",
-                rest_api=api,
-                validate_request_body=True,
-                validate_request_parameters=True
-            )
+        execute_action_resource.add_method("POST", action_integration)
+        execute_action_resource.add_cors_preflight(
+            allow_origins=apigateway.Cors.ALL_ORIGINS,
+            allow_methods=apigateway.Cors.ALL_METHODS,
+            allow_headers=["Content-Type", "Authorization"]
         )
-        execute_action_resource.add_cors_preflight(**cors_config)
 
         self.api_url = api.url
 

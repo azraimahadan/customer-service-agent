@@ -14,7 +14,7 @@ lambda_client = boto3.client('lambda')
 
 BUCKET_NAME = os.environ['STORAGE_BUCKET']
 KNOWLEDGE_BASE_ID = "HU9V8VBZBI"
-# Auto-detect action executor function name or use direct API calls
+# Auto-detect action executor function name or use direct API call
 API_BASE_URL = "https://439qy87kqq.ap-southeast-1.awsapprunner.com"
 
 def lambda_handler(event, context):
