@@ -31,6 +31,9 @@ jobs:
     
     - name: Run tests
       working-directory: .
+      env:
+        STORAGE_BUCKET: test-bucket
+        BEDROCK_AGENT_ID: test-agent
       run: |
         python -m pytest tests/ -v
 

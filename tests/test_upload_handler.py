@@ -5,6 +5,9 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
+# Set required environment variables before importing
+os.environ['STORAGE_BUCKET'] = 'test-bucket'
+
 # Add lambda function to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lambda_functions', 'upload_handler'))
 from upload_handler import lambda_handler
