@@ -16,18 +16,31 @@ def lambda_handler(event, context):
         body = json.loads(event['body'])
         session_id = body['session_id']
         
-        # Get transcript and image analysis
-        transcript_obj = s3_client.get_object(
-            Bucket=BUCKET_NAME,
-            Key=f"sessions/{session_id}/transcript.json"
-        )
-        transcript_data = json.loads(transcript_obj['Body'].read())
+        # Get transcript and image analysis (if they exist)
+        transcript_data = {'text': 'No audio provided'}
+        analysis_data = {'labels': [], 'extracted_text': [], 'custom_labels': []}
         
-        analysis_obj = s3_client.get_object(
-            Bucket=BUCKET_NAME,
-            Key=f"sessions/{session_id}/image_analysis.json"
-        )
-        analysis_data = json.loads(analysis_obj['Body'].read())
+        try:
+            transcript_obj = s3_client.get_object(
+                Bucket=BUCKET_NAME,
+                Key=f"sessions/{session_id}/transcript.json"
+            )
+            transcript_data = json.loads(transcript_obj['Body'].read())
+        except ClientError as e:
+            if e.response['Error']['Code'] != 'NoSuchKey':
+                raise
+            print(f"No transcript found for session {session_id}")
+        
+        try:
+            analysis_obj = s3_client.get_object(
+                Bucket=BUCKET_NAME,
+                Key=f"sessions/{session_id}/image_analysis.json"
+            )
+            analysis_data = json.loads(analysis_obj['Body'].read())
+        except ClientError as e:
+            if e.response['Error']['Code'] != 'NoSuchKey':
+                raise
+            print(f"No image analysis found for session {session_id}")
         
         # Analyze query complexity and get knowledge base context
         query_complexity = analyze_query_complexity(transcript_data['text'])
@@ -87,18 +100,37 @@ def lambda_handler(event, context):
             else:
                 raise
         
-        # Store audio response
+        # Format response for better readability
+        formatted_response = format_markdown_response(agent_response)
+        
+        # Store audio response with proper headers
         audio_key = f"sessions/{session_id}/response.mp3"
         s3_client.put_object(
             Bucket=BUCKET_NAME,
             Key=audio_key,
             Body=tts_response['AudioStream'].read(),
-            ContentType='audio/mpeg'
+            ContentType='audio/mpeg',
+            CacheControl='max-age=3600',
+            Metadata={
+                'Content-Type': 'audio/mpeg'
+            }
         )
+        
+        # Use environment variable for API URL (will be set after deployment)
+        api_base_url = os.environ.get('API_BASE_URL')
+        if api_base_url:
+            audio_url = f"{api_base_url}/audio/{session_id}"
+        else:
+            # Fallback to presigned URL if API URL not available
+            audio_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': BUCKET_NAME, 'Key': audio_key},
+                ExpiresIn=3600
+            )
         
         # Store troubleshooting response
         troubleshooting_data = {
-            'response_text': agent_response,
+            'response_text': formatted_response,
             'audio_key': audio_key,
             'recommended_actions': extract_actions(agent_response)
         }
@@ -116,8 +148,8 @@ def lambda_handler(event, context):
                 'Access-Control-Allow-Origin': '*'
             },
             'body': json.dumps({
-                'response': agent_response,
-                'audio_url': f"https://{BUCKET_NAME}.s3.amazonaws.com/{audio_key}",
+                'response': formatted_response,
+                'audio_url': audio_url,
                 'actions': troubleshooting_data['recommended_actions'],
                 'session_id': session_id
             })
@@ -212,6 +244,42 @@ Image Analysis:
         base_prompt += "\n\nProvide detailed troubleshooting with explanations, multiple options, and preventive measures."
     
     return base_prompt
+
+def format_markdown_response(text):
+    """Format response text for better markdown readability"""
+    # Clean up the text
+    text = text.strip()
+    
+    # Add proper spacing around numbered lists
+    text = re.sub(r'(\d+\.)\s*', r'\n\1 ', text)
+    
+    # Add proper spacing around bullet points
+    text = re.sub(r'([•-])\s*', r'\n\1 ', text)
+    
+    # Add spacing around bold text
+    text = re.sub(r'\*\*(.*?)\*\*', r'\n**\1**\n', text)
+    
+    # Clean up multiple newlines
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    
+    # Ensure proper paragraph spacing
+    sentences = text.split('. ')
+    formatted_sentences = []
+    
+    for i, sentence in enumerate(sentences):
+        sentence = sentence.strip()
+        if sentence:
+            if i < len(sentences) - 1:
+                sentence += '.'
+            formatted_sentences.append(sentence)
+    
+    # Join with proper spacing
+    result = ' '.join(formatted_sentences)
+    
+    # Add line breaks before questions
+    result = re.sub(r'(\?\s*)([A-Z])', r'\1\n\n\2', result)
+    
+    return result.strip()
 
 def extract_actions(response_text):
     """Extract actionable items from the response"""

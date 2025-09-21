@@ -3,6 +3,7 @@
 import { Message } from '@/types'
 import { User, Bot, Volume2 } from 'lucide-react'
 import Image from 'next/image'
+import ReactMarkdown from 'react-markdown'
 
 interface ChatMessageProps {
   message: Message
@@ -20,7 +21,20 @@ export default function ChatMessage({ message, onActionClick }: ChatMessageProps
       
       <div className={`chat-bubble ${isUser ? 'chat-bubble-user' : 'chat-bubble-bot'}`}>
         {message.type === 'text' && (
-          <p className="text-base leading-relaxed font-medium">{message.content}</p>
+          <div className="prose prose-sm max-w-none text-base leading-relaxed font-medium">
+            <ReactMarkdown
+              components={{
+                p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
+                strong: ({children}) => <strong className="font-bold text-gray-900">{children}</strong>,
+                em: ({children}) => <em className="italic text-gray-800">{children}</em>,
+                ul: ({children}) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+                ol: ({children}) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                li: ({children}) => <li className="mb-1">{children}</li>
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
         )}
         
         {message.type === 'image' && message.imageUrl && (
@@ -53,8 +67,14 @@ export default function ChatMessage({ message, onActionClick }: ChatMessageProps
               <Volume2 size={14} className="text-secondary-500" />
               <span className="text-sm font-medium text-text-secondary">Audio Response</span>
             </div>
-            <audio controls className="w-full h-8">
+            <audio 
+              controls 
+              className="w-full h-8" 
+              preload="metadata"
+              crossOrigin="anonymous"
+            >
               <source src={message.audioResponse} type="audio/mpeg" />
+              Your browser does not support the audio element.
             </audio>
           </div>
         )}

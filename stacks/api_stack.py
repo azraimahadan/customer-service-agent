@@ -90,6 +90,17 @@ class ApiStack(Stack):
             environment=common_env,
             layers=layers
         )
+        
+        # Audio proxy Lambda
+        audio_proxy = _lambda.Function(
+            self, "AudioProxy",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="audio_proxy.lambda_handler",
+            code=_lambda.Code.from_asset("lambda_functions/audio_proxy"),
+            timeout=Duration.seconds(30),
+            environment=common_env,
+            layers=layers
+        )
 
         # Grant S3 permissions to all Lambdas
         for func in [
@@ -97,7 +108,8 @@ class ApiStack(Stack):
             transcribe_handler,
             image_analysis_handler,
             bedrock_handler,
-            action_executor
+            action_executor,
+            audio_proxy
         ]:
             storage_bucket.grant_read_write(func)
 
@@ -114,6 +126,7 @@ class ApiStack(Stack):
         image_integration = apigateway.LambdaIntegration(image_analysis_handler)
         bedrock_integration = apigateway.LambdaIntegration(bedrock_handler)
         action_integration = apigateway.LambdaIntegration(action_executor)
+        audio_integration = apigateway.LambdaIntegration(audio_proxy)
 
         # Common CORS configuration
         cors_config = {
@@ -187,6 +200,12 @@ class ApiStack(Stack):
             )
         )
         execute_action_resource.add_cors_preflight(**cors_config)
+        
+        # Audio proxy endpoint
+        audio_resource = api.root.add_resource("audio")
+        session_resource = audio_resource.add_resource("{session_id}")
+        session_resource.add_method("GET", audio_integration)
+        session_resource.add_cors_preflight(**cors_config)
 
         self.api_url = api.url
 

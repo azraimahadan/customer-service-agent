@@ -46,6 +46,34 @@ def lambda_handler(event, context):
                 ContentType='audio/wav'
             )
         
+        # Handle text-only requests by creating default transcript
+        if not audio_key and not image_key:
+            # Create a default transcript for text-only queries
+            default_transcript = {
+                'text': body.get('text', 'General troubleshooting request'),
+                'timestamp': timestamp
+            }
+            s3_client.put_object(
+                Bucket=BUCKET_NAME,
+                Key=f"sessions/{session_id}/transcript.json",
+                Body=json.dumps(default_transcript),
+                ContentType='application/json'
+            )
+            
+            # Create default image analysis for consistency
+            default_analysis = {
+                'labels': [],
+                'extracted_text': [],
+                'custom_labels': [],
+                'timestamp': timestamp
+            }
+            s3_client.put_object(
+                Bucket=BUCKET_NAME,
+                Key=f"sessions/{session_id}/image_analysis.json",
+                Body=json.dumps(default_analysis),
+                ContentType='application/json'
+            )
+        
         # Store session metadata
         session_data = {
             'session_id': session_id,

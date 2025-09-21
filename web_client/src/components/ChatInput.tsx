@@ -7,16 +7,20 @@ interface ChatInputProps {
   onSendMessage: (content: string, type: 'text' | 'image' | 'audio', file?: File) => void
   isLoading: boolean
   isRecording: boolean
+  recordedAudio: File | null
   onStartRecording: () => void
   onStopRecording: () => void
+  onClearRecordedAudio: () => void
 }
 
 export default function ChatInput({ 
   onSendMessage, 
   isLoading, 
   isRecording, 
+  recordedAudio,
   onStartRecording, 
-  onStopRecording 
+  onStopRecording,
+  onClearRecordedAudio
 }: ChatInputProps) {
   const [message, setMessage] = useState('')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
@@ -25,9 +29,12 @@ export default function ChatInput({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!message.trim() && !selectedImage) return
+    if (!message.trim() && !selectedImage && !recordedAudio) return
 
-    if (selectedImage) {
+    if (recordedAudio) {
+      onSendMessage(message || 'Audio message describing the issue', 'audio', recordedAudio)
+      onClearRecordedAudio()
+    } else if (selectedImage) {
       onSendMessage(message, 'image', selectedImage)
       setSelectedImage(null)
       setImagePreview(null)
@@ -63,6 +70,18 @@ export default function ChatInput({
             className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-ios active:scale-95 transition-all"
           >
             <X size={12} />
+          </button>
+        </div>
+      )}
+      
+      {recordedAudio && (
+        <div className="mb-4 flex items-center gap-2 p-2 bg-blue-50 rounded-ios border border-blue-200">
+          <span className="text-sm text-blue-700">🎤 Audio recorded</span>
+          <button
+            onClick={onClearRecordedAudio}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            <X size={16} />
           </button>
         </div>
       )}
@@ -116,7 +135,7 @@ export default function ChatInput({
         
         <button
           type="submit"
-          disabled={isLoading || (!message.trim() && !selectedImage)}
+          disabled={isLoading || (!message.trim() && !selectedImage && !recordedAudio)}
           className="btn-primary"
         >
           <Send size={20} />

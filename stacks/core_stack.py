@@ -17,6 +17,14 @@ class CoreStack(Stack):
             bucket_name=f"customer-service-storage-{self.account}-{self.region}",
             versioned=True,
             encryption=s3.BucketEncryption.S3_MANAGED,
+            cors=[
+                s3.CorsRule(
+                    allowed_methods=[s3.HttpMethods.GET, s3.HttpMethods.HEAD],
+                    allowed_origins=["*"],
+                    allowed_headers=["*"],
+                    max_age=3600
+                )
+            ],
             lifecycle_rules=[
                 s3.LifecycleRule(
                     id="dev-cleanup",

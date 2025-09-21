@@ -19,6 +19,7 @@ export default function ChatContainer() {
   ])
   const [isLoading, setIsLoading] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
+  const [recordedAudio, setRecordedAudio] = useState<File | null>(null)
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -82,13 +83,16 @@ export default function ChatContainer() {
     try {
       let stepCount = 1
       const totalSteps = (hasAudio ? 1 : 0) + (hasImage ? 1 : 0) + 1
+      let transcribeSuccess = true
+      let imageAnalysisSuccess = true
 
       // Step 1: Transcribe audio if present
       if (hasAudio) {
         setProcessingStep(`Step ${stepCount}/${totalSteps}: Transcribing audio...`)
         const transcribeResult = await ApiClient.transcribeAudio(sessionId)
         if (transcribeResult.error) {
-          throw new Error(`Transcription failed: ${transcribeResult.error}`)
+          console.warn(`Transcription failed: ${transcribeResult.error}`)
+          transcribeSuccess = false
         }
         stepCount++
       }
@@ -98,33 +102,39 @@ export default function ChatContainer() {
         setProcessingStep(`Step ${stepCount}/${totalSteps}: Analyzing image...`)
         const imageResult = await ApiClient.analyzeImage(sessionId)
         if (imageResult.error) {
-          throw new Error(`Image analysis failed: ${imageResult.error}`)
+          console.warn(`Image analysis failed: ${imageResult.error}`)
+          imageAnalysisSuccess = false
         }
         stepCount++
       }
 
-      // Step 3: Get troubleshooting response
-      setProcessingStep(`Step ${stepCount}/${totalSteps}: Generating solution...`)
-      const troubleshootResult = await ApiClient.troubleshoot(sessionId)
-      
-      if (troubleshootResult.error) {
-        throw new Error(`Troubleshooting failed: ${troubleshootResult.error}`)
-      }
+      // Step 3: Get troubleshooting response (only if we have successful processing or no files)
+      if ((!hasAudio || transcribeSuccess) && (!hasImage || imageAnalysisSuccess)) {
+        setProcessingStep(`Step ${stepCount}/${totalSteps}: Generating solution...`)
+        const troubleshootResult = await ApiClient.troubleshoot(sessionId)
+        
+        if (troubleshootResult.error) {
+          throw new Error(`Troubleshooting failed: ${troubleshootResult.error}`)
+        }
 
-      const response = troubleshootResult.data!
-      
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: response.response,
-        sender: 'bot',
-        timestamp: new Date(),
-        type: 'text',
-        audioResponse: response.audio_url,
-        sessionId: response.session_id,
-        actions: response.actions
-      }
+        const response = troubleshootResult.data!
+        
+        const botResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          content: response.response,
+          sender: 'bot',
+          timestamp: new Date(),
+          type: 'text',
+          audioResponse: response.audio_url,
+          sessionId: response.session_id,
+          actions: response.actions
+        }
 
-      setMessages(prev => [...prev, botResponse])
+        setMessages(prev => [...prev, botResponse])
+      } else {
+        throw new Error('Failed to process uploaded files. Please try again.')
+      }
+      
       setProcessingStep('')
       
     } catch (error) {
@@ -157,18 +167,22 @@ export default function ChatContainer() {
     setIsLoading(true)
 
     try {
-      // Step 1: Upload files (including text-only queries)
-      setProcessingStep('Uploading files...')
+      let sessionId: string
+      
+      // Upload files or create session with text content
+      setProcessingStep(type === 'text' ? 'Processing message...' : 'Uploading files...')
       const uploadResult = await ApiClient.uploadFiles(
         type === 'image' ? file : undefined,
-        type === 'audio' ? file as Blob : undefined
+        type === 'audio' ? file as Blob : undefined,
+        type === 'text' ? content : undefined
       )
 
       if (uploadResult.error) {
-        throw new Error(`Upload failed: ${uploadResult.error}`)
+        throw new Error(`${type === 'text' ? 'Session creation' : 'Upload'} failed: ${uploadResult.error}`)
       }
 
-      const sessionId = uploadResult.data!.session_id
+      sessionId = uploadResult.data!.session_id
+      
       setCurrentSessionId(sessionId)
 
       // Process with backend pipeline
@@ -207,17 +221,8 @@ export default function ChatContainer() {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' })
         const audioUrl = URL.createObjectURL(audioBlob)
         
-        const audioMessage: Message = {
-          id: Date.now().toString(),
-          content: 'Audio message describing the issue',
-          sender: 'user',
-          timestamp: new Date(),
-          type: 'audio',
-          audioUrl
-        }
-
-        setMessages(prev => [...prev, audioMessage])
-        handleSendMessage('Audio message describing the issue', 'audio', audioBlob as File)
+        // Store the recorded audio but don't auto-send
+        setRecordedAudio(audioBlob as File)
         
         stream.getTracks().forEach(track => track.stop())
       }
@@ -299,8 +304,10 @@ export default function ChatContainer() {
           onSendMessage={handleSendMessage}
           isLoading={isLoading}
           isRecording={isRecording}
+          recordedAudio={recordedAudio}
           onStartRecording={startRecording}
           onStopRecording={stopRecording}
+          onClearRecordedAudio={() => setRecordedAudio(null)}
         />
       </div>
     </div>
