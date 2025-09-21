@@ -161,6 +161,7 @@ export default function ChatContainer() {
       timestamp: new Date(),
       type,
       imageUrl: file && type === 'image' ? URL.createObjectURL(file) : undefined,
+      audioUrl: file && type === 'audio' ? URL.createObjectURL(file) : undefined,
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -221,8 +222,13 @@ export default function ChatContainer() {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' })
         const audioUrl = URL.createObjectURL(audioBlob)
         
-        // Store the recorded audio but don't auto-send
+        // Store the recorded audio and auto-send
         setRecordedAudio(audioBlob as File)
+        
+        // Auto-send the audio message
+        setTimeout(() => {
+          handleSendMessage('Audio message describing the issue', 'audio', audioBlob as File)
+        }, 100)
         
         stream.getTracks().forEach(track => track.stop())
       }

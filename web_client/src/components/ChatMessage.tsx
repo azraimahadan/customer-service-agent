@@ -4,6 +4,7 @@ import { Message } from '@/types'
 import { User, Bot, Volume2 } from 'lucide-react'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
+import { useRef, useEffect } from 'react'
 
 interface ChatMessageProps {
   message: Message
@@ -12,6 +13,36 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ message, onActionClick }: ChatMessageProps) {
   const isUser = message.sender === 'user'
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const userAudioRef = useRef<HTMLAudioElement>(null)
+
+  // Auto-play bot audio responses
+  useEffect(() => {
+    if (message.audioResponse && audioRef.current && !isUser) {
+      const playAudio = async () => {
+        try {
+          await audioRef.current?.play()
+        } catch (error) {
+          console.log('Auto-play failed (user interaction required):', error)
+        }
+      }
+      playAudio()
+    }
+  }, [message.audioResponse, isUser])
+
+  // // Auto-play user audio messages
+  // useEffect(() => {
+  //   if (message.type === 'audio' && message.audioUrl && userAudioRef.current && isUser) {
+  //     const playUserAudio = async () => {
+  //       try {
+  //         await userAudioRef.current?.play()
+  //       } catch (error) {
+  //         console.log('Auto-play failed for user audio (user interaction required):', error)
+  //       }
+  //     }
+  //     playUserAudio()
+  //   }
+  // }, [message.audioUrl, message.type, isUser])
 
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'} mb-6 message-enter message-enter-active`}>
@@ -55,7 +86,7 @@ export default function ChatMessage({ message, onActionClick }: ChatMessageProps
             <div className="flex items-center justify-center w-10 h-10 bg-primary-50 rounded-full">
               <Volume2 size={16} className="text-primary-600" />
             </div>
-            <audio controls className="flex-1 h-8">
+            <audio ref={userAudioRef} controls className="flex-1 h-8">
               <source src={message.audioUrl} type="audio/wav" />
             </audio>
           </div>
@@ -68,6 +99,7 @@ export default function ChatMessage({ message, onActionClick }: ChatMessageProps
               <span className="text-sm font-medium text-text-secondary">Audio Response</span>
             </div>
             <audio 
+              ref={audioRef}
               controls 
               className="w-full h-8" 
               preload="metadata"
