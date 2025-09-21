@@ -13,6 +13,32 @@ SUARA is an intelligent customer service agent that provides multimodal troubles
 - **Infrastructure**: AWS CDK (Python) for Infrastructure as Code
 - **Deployment**: CloudFront + S3 for global CDN distribution
 
+## 🎯 Key Features
+
+### Multimodal Input Support
+- **📝 Text Chat**: Direct text input for quick queries
+- **🎤 Voice Recording**: Browser-based audio capture and transcription
+- **📸 Image Upload**: Visual troubleshooting with router/device images
+- **🔄 Mixed Mode**: Combine text, voice, and images in single session
+
+### AI-Powered Troubleshooting
+- **🧠 GPT Integration**: Advanced language understanding via Amazon Bedrock
+- **📚 Knowledge Base**: Semantic search through troubleshooting procedures
+- **🔍 Image Analysis**: Automatic detection of device states and error messages
+- **🎯 Contextual Responses**: Adaptive solutions based on query complexity
+
+### Interactive Experience
+- **⚡ Real-time Processing**: Step-by-step progress indicators
+- **🔊 Text-to-Speech**: Audio responses via Amazon Polly
+- **🎬 Action Buttons**: One-click execution of suggested solutions
+- **📱 Responsive Design**: Works on desktop, tablet, and mobile
+
+### Enterprise Ready
+- **🔐 Secure**: IAM-based access control, encrypted storage
+- **📊 Auditable**: Complete session logging and audit trails
+- **⚡ Scalable**: Serverless architecture handles traffic spikes
+- **🌍 Global**: CloudFront CDN for worldwide deployment
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -335,31 +361,6 @@ aws logs tail /aws/lambda/CustomerServiceApi-BedrockHandler --follow
 - **Cost Explorer**: Monitor AWS service costs
 - **CloudWatch Alarms**: Set up alerts for errors/high latency
 
-## 🎯 Key Features
-
-### Multimodal Input Support
-- **📝 Text Chat**: Direct text input for quick queries
-- **🎤 Voice Recording**: Browser-based audio capture and transcription
-- **📸 Image Upload**: Visual troubleshooting with router/device images
-- **🔄 Mixed Mode**: Combine text, voice, and images in single session
-
-### AI-Powered Troubleshooting
-- **🧠 GPT Integration**: Advanced language understanding via Amazon Bedrock
-- **📚 Knowledge Base**: Semantic search through troubleshooting procedures
-- **🔍 Image Analysis**: Automatic detection of device states and error messages
-- **🎯 Contextual Responses**: Adaptive solutions based on query complexity
-
-### Interactive Experience
-- **⚡ Real-time Processing**: Step-by-step progress indicators
-- **🔊 Text-to-Speech**: Audio responses via Amazon Polly
-- **🎬 Action Buttons**: One-click execution of suggested solutions
-- **📱 Responsive Design**: Works on desktop, tablet, and mobile
-
-### Enterprise Ready
-- **🔐 Secure**: IAM-based access control, encrypted storage
-- **📊 Auditable**: Complete session logging and audit trails
-- **⚡ Scalable**: Serverless architecture handles traffic spikes
-- **🌍 Global**: CloudFront CDN for worldwide deployment
 
 ## 🏆 Team Codezilla
 
