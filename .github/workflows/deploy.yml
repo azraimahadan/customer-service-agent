@@ -75,6 +75,14 @@ jobs:
       working-directory: ./web_client
       run: npm install
     
+    - name: Create environment file
+      working-directory: ./web_client
+      run: |
+        cat > .env.local << 'EOF'
+        NEXT_PUBLIC_API_URL=https://your-api-gateway-url.amazonaws.com/prod
+        NEXT_PUBLIC_DEV_MODE=false
+        EOF
+    
     - name: Build web client
       working-directory: ./web_client
       env:
@@ -87,11 +95,43 @@ jobs:
         JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION: true
       run: cdk bootstrap
     
-    - name: CDK Deploy
+    - name: Deploy Backend Stacks
       working-directory: .
       env:
         JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION: true
-      run: cdk deploy --all --require-approval never
+      run: |
+        cdk deploy CustomerServiceCore --require-approval never
+        cdk deploy CustomerServiceML --require-approval never
+        cdk deploy CustomerServiceApi --require-approval never
+    
+    - name: Get API Gateway URL
+      working-directory: .
+      id: get-api-url
+      run: |
+        API_URL=$(aws cloudformation describe-stacks --stack-name CustomerServiceApi --query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' --output text)
+        echo "API_URL=$API_URL" >> $GITHUB_OUTPUT
+        echo "Retrieved API URL: $API_URL"
+    
+    - name: Update frontend with API URL
+      working-directory: ./web_client
+      run: |
+        cat > .env.local << EOF
+        NEXT_PUBLIC_API_URL=${{ steps.get-api-url.outputs.API_URL }}
+        NEXT_PUBLIC_DEV_MODE=false
+        EOF
+        echo "Updated .env.local with API URL: ${{ steps.get-api-url.outputs.API_URL }}"
+    
+    - name: Rebuild web client with API URL
+      working-directory: ./web_client
+      env:
+        CI: false
+      run: npm run build
+    
+    - name: Deploy Web Stack
+      working-directory: .
+      env:
+        JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION: true
+      run: cdk deploy CustomerServiceWeb --require-approval never
     
     - name: Run smoke tests
       working-directory: .
