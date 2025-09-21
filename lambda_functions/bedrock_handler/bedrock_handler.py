@@ -5,10 +5,11 @@ from botocore.exceptions import ClientError
 import re
 
 bedrock_runtime = boto3.client('bedrock-runtime')
+bedrock_agent = boto3.client('bedrock-agent-runtime')
 polly_client = boto3.client('polly')
 s3_client = boto3.client('s3')
 BUCKET_NAME = os.environ['STORAGE_BUCKET']
-BEDROCK_AGENT_ID = os.environ.get('BEDROCK_AGENT_ID', 'PLACEHOLDER_AGENT_ID')
+KNOWLEDGE_BASE_ID = "HU9V8VBZBI"
 
 def lambda_handler(event, context):
     try:
@@ -28,27 +29,21 @@ def lambda_handler(event, context):
         )
         analysis_data = json.loads(analysis_obj['Body'].read())
         
-        # Call Bedrock with Llama model directly
+        # Analyze query complexity and get knowledge base context
+        query_complexity = analyze_query_complexity(transcript_data['text'])
+        kb_context = get_knowledge_base_context(transcript_data['text'], analysis_data)
+        
+        # Call Bedrock with adaptive prompt
         try:
-            prompt = f"""You are a Unifi TV customer service agent. Analyze this customer issue and provide troubleshooting steps.
+            prompt = build_adaptive_prompt(transcript_data['text'], analysis_data, query_complexity, kb_context)
 
-            Customer Issue: {transcript_data['text']}
-
-            Image Analysis Results:
-            - Detected Labels: {[label['Name'] for label in analysis_data.get('labels', [])]}
-            - Detected Text: {analysis_data.get('extracted_text', [])}
-            - Custom Labels: {[label['Name'] for label in analysis_data.get('custom_labels', [])]}
-
-            Provide a helpful response with specific troubleshooting steps. If you see "No Service" error or similar issues, suggest soloutions such as checking cables, restarting the UNIFItv box, or re-provisioning the service.
-
-            Response:"""
-
+            max_tokens = 512 if query_complexity == 'simple' else 1024
             native_request = {
                 "messages": [
                     {"role": "system", "content": "You are a helpful assistant."},
                     {"role": "user", "content": prompt}
                 ],
-                "max_completion_tokens": 1024,
+                "max_completion_tokens": max_tokens,
                 "temperature": 0.2,
             }
 
@@ -157,6 +152,66 @@ def generate_fallback_response(transcript, analysis):
         response += "Let me run some diagnostics and provide you with the appropriate troubleshooting steps."
     
     return response
+
+def analyze_query_complexity(query_text):
+    """Analyze query complexity to determine response type"""
+    complexity_indicators = {
+        'simple': ['restart', 'reboot', 'turn on', 'turn off', 'no signal', 'black screen'],
+        'complex': ['intermittent', 'sometimes', 'multiple', 'various', 'different channels', 'specific times']
+    }
+    
+    query_lower = query_text.lower()
+    word_count = len(query_text.split())
+    
+    if word_count > 20 or any(indicator in query_lower for indicator in complexity_indicators['complex']):
+        return 'complex'
+    return 'simple'
+
+def get_knowledge_base_context(query, analysis_data):
+    """Retrieve relevant context using Bedrock Knowledge Base semantic search"""
+    try:
+        final_query = query + " " + " ".join([l['Name'] for l in analysis_data.get('labels', [])])
+        response = bedrock_agent.retrieve(
+            knowledgeBaseId=KNOWLEDGE_BASE_ID,
+            retrievalQuery={'text': query},
+            retrievalConfiguration={
+                'vectorSearchConfiguration': {
+                    'numberOfResults': 3
+                }
+            }
+        )
+        
+        context = ""
+        for result in response['retrievalResults']:
+            context += result['content']['text'] + "\n"
+        
+        return context.strip()
+    except Exception as e:
+        print(f"KB retrieval failed: {e}")
+        return ""
+
+
+
+def build_adaptive_prompt(query, analysis_data, complexity, kb_context):
+    """Build prompt based on complexity and available context"""
+    base_prompt = f"""You are a Unifi TV customer service agent.
+
+Customer Issue: {query}
+
+Image Analysis:
+- Labels: {[l['Name'] for l in analysis_data.get('labels', [])]}
+- Text: {analysis_data.get('extracted_text', [])}
+- Custom: {[l['Name'] for l in analysis_data.get('custom_labels', [])]}"""
+    
+    if kb_context:
+        base_prompt += f"\n\nKnowledge Base Context:\n{kb_context}"
+    
+    if complexity == 'simple':
+        base_prompt += "\n\nProvide a concise, direct solution with 2-3 key steps."
+    else:
+        base_prompt += "\n\nProvide detailed troubleshooting with explanations, multiple options, and preventive measures."
+    
+    return base_prompt
 
 def extract_actions(response_text):
     """Extract actionable items from the response"""
