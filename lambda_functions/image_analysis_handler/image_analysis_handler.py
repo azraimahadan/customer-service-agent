@@ -1,16 +1,34 @@
 import json
 import boto3
 import os
+import re
+import logging
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 rekognition_client = boto3.client('rekognition')
 s3_client = boto3.client('s3')
 BUCKET_NAME = os.environ['STORAGE_BUCKET']
 REKOGNITION_PROJECT_ARN = os.environ.get('REKOGNITION_PROJECT_ARN')
 
+def sanitize_session_id(session_id):
+    """Sanitize session_id to prevent path traversal attacks"""
+    # Only allow alphanumeric characters and hyphens
+    if not re.match(r'^[a-zA-Z0-9-]+$', session_id):
+        raise ValueError("Invalid session ID format")
+    return session_id
+
 def lambda_handler(event, context):
     try:
+        logger.info("Processing image analysis request")
         body = json.loads(event['body'])
-        session_id = body['session_id']
+        
+        if 'session_id' not in body:
+            raise ValueError("Missing session_id in request")
+            
+        session_id = sanitize_session_id(body['session_id'])
         image_key = f"sessions/{session_id}/image.jpg"
         
         analysis_results = {}
@@ -84,13 +102,25 @@ def lambda_handler(event, context):
             })
         }
         
+    except ValueError as e:
+        logger.error(f"Validation error: {str(e)}")
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'error': 'Invalid request'
+            })
+        }
     except Exception as e:
+        logger.error(f"Image analysis failed: {str(e)}")
         return {
             'statusCode': 500,
             'headers': {
                 'Access-Control-Allow-Origin': '*'
             },
             'body': json.dumps({
-                'error': str(e)
+                'error': 'Analysis failed'
             })
         }

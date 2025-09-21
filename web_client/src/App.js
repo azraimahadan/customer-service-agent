@@ -7,7 +7,7 @@ function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [image, setImage] = useState(null);
   const [audioBlob, setAudioBlob] = useState(null);
-  const [sessionId, setSessionId] = useState(null);
+  const [, setSessionId] = useState(null);
   const [response, setResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -101,15 +101,15 @@ function App() {
 
       const uploadData = await uploadResponse.json();
       console.log('Upload successful:', uploadData);
-      const sessionId = uploadData.session_id;
-      setSessionId(sessionId);
+      const currentSessionId = uploadData.session_id;
+      setSessionId(currentSessionId);
 
       // Transcribe audio
       setResponse('Converting speech to text...');
       await fetch(`${API_BASE_URL}/transcribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId })
+        body: JSON.stringify({ session_id: currentSessionId })
       });
 
       // Analyze image
@@ -117,7 +117,7 @@ function App() {
       await fetch(`${API_BASE_URL}/analyze-image`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId })
+        body: JSON.stringify({ session_id: currentSessionId })
       });
 
       // Get troubleshooting response
@@ -125,7 +125,7 @@ function App() {
       const troubleshootResponse = await fetch(`${API_BASE_URL}/troubleshoot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId })
+        body: JSON.stringify({ session_id: currentSessionId })
       });
 
       const troubleshootData = await troubleshootResponse.json();
@@ -144,7 +144,7 @@ function App() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-              session_id: sessionId,
+              session_id: currentSessionId,
               action: action
             })
           });

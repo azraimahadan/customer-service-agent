@@ -74,9 +74,6 @@ def restart_set_top_box(session_id):
     # In a real implementation, this would call the actual provisioning API
     print(f"Restarting STB for session {session_id}")
     
-    # Simulate API call delay
-    time.sleep(1)
-    
     return {
         'success': True,
         'message': 'Set-top box restart command sent successfully',
@@ -91,9 +88,6 @@ def reprovision_service(session_id):
     # In a real implementation, this would call the actual provisioning API
     print(f"Reprovisioning service for session {session_id}")
     
-    # Simulate API call delay
-    time.sleep(2)
-    
     return {
         'success': True,
         'message': 'Service reprovisioning initiated successfully',
@@ -107,9 +101,6 @@ def check_subscription_status(session_id):
     """Simulate checking subscription status"""
     # In a real implementation, this would call the actual billing/subscription API
     print(f"Checking subscription status for session {session_id}")
-    
-    # Simulate API call delay
-    time.sleep(1)
     
     # Simulate subscription check result
     return {

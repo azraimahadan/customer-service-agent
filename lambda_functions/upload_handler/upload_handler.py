@@ -3,13 +3,19 @@ import boto3
 import base64
 import uuid
 import os
+import logging
 from datetime import datetime
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 s3_client = boto3.client('s3')
 BUCKET_NAME = os.environ['STORAGE_BUCKET']
 
 def lambda_handler(event, context):
     try:
+        logger.info(f"Processing upload request")
         body = json.loads(event['body'])
         
         # Generate unique session ID
@@ -56,6 +62,7 @@ def lambda_handler(event, context):
             ContentType='application/json'
         )
         
+        logger.info(f"Upload successful for session: {session_id}")
         return {
             'statusCode': 200,
             'headers': {
@@ -70,12 +77,13 @@ def lambda_handler(event, context):
         }
         
     except Exception as e:
+        logger.error(f"Upload failed: {str(e)}")
         return {
             'statusCode': 500,
             'headers': {
                 'Access-Control-Allow-Origin': '*'
             },
             'body': json.dumps({
-                'error': str(e)
+                'error': 'Upload failed'
             })
         }

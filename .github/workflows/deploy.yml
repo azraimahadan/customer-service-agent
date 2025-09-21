@@ -77,6 +77,8 @@ jobs:
     
     - name: Build web client
       working-directory: ./web_client
+      env:
+        CI: false
       run: npm run build
     
     - name: CDK Bootstrap (if needed)
