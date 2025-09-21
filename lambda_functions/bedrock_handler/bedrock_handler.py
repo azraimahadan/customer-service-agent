@@ -233,7 +233,12 @@ Customer Issue: {query}
 Image Analysis:
 - Labels: {[l['Name'] for l in analysis_data.get('labels', [])]}
 - Text: {analysis_data.get('extracted_text', [])}
-- Custom: {[l['Name'] for l in analysis_data.get('custom_labels', [])]}"""
+- Custom: {[l['Name'] for l in analysis_data.get('custom_labels', [])]}
+
+Instructions: 
+If the user's query is ambiguous, prompt user for asking again.
+Utilize Knowledge Base context only if user's issue is clear..
+"""
     
     if kb_context:
         base_prompt += f"\n\nKnowledge Base Context:\n{kb_context}"
