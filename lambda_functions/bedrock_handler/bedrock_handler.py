@@ -166,18 +166,34 @@ def lambda_handler(event, context):
                 try:
                     model_id = "openai.gpt-oss-120b-1:0"
                     response = bedrock_runtime.invoke_model(modelId=model_id, body=request)
+                    model_response = json.loads(response["body"].read())
+                    agent_response = model_response["choices"][0]["message"]["content"]
+                    agent_response = re.sub(r"<reasoning>.*?</reasoning>", "", agent_response, flags=re.DOTALL).strip()
+                    
+                    # Check if response is empty or invalid
+                    if not agent_response or len(agent_response.strip()) < 10:
+                        raise ValueError("LLM returned empty or invalid response")
+                    
+                    # Check if agent needs to escalate to human
+                    if should_escalate_to_human(agent_response, transcript_data['text'], conversation_history):
+                        agent_response = escalate_to_human_agent(ticket_id, agent_response)
+                    
+                except (ClientError, ValueError, KeyError) as e:
+                    # LLM/Bedrock failure - auto escalate to human
+                    print(f"🚨 LLM/Bedrock failed: {type(e).__name__} - {e}")
+                    agent_response = escalate_to_human_agent(ticket_id, "AI system unavailable")
                 except Exception as e:
-                    print(f"ERROR: Can't invoke '{model_id}'. Reason: {e}")
-                    raise
-
-                model_response = json.loads(response["body"].read())
-                agent_response = model_response["choices"][0]["message"]["content"]
-                agent_response = re.sub(r"<reasoning>.*?</reasoning>", "", agent_response, flags=re.DOTALL).strip()
+                    # Any other error - auto escalate
+                    print(f"🚨 Unexpected AI error: {type(e).__name__} - {e}")
+                    agent_response = escalate_to_human_agent(ticket_id, "AI system error")
+                
                 save_conversation_history(session_id, prompt, agent_response)
             
         except Exception as e:
-            print(f"Bedrock Llama call failed: {e}")
-            agent_response = generate_fallback_response(transcript_data['text'], analysis_data)
+            print(f"Bedrock AI failed: {e}")
+            # AI system error - escalate to human
+            agent_response = f"I'm experiencing some technical difficulties on my end. Let me connect you with one of our Codezilla staff who can help you right away with ticket {ticket_id}. They'll have full context of your issue and will reach out shortly. Is there anything else I can note for them?"
+            guardrail_blocked = True  # Skip further processing
         
         # Generate TTS audio with better error handling
         try:
@@ -631,6 +647,71 @@ def format_markdown_response(text):
     result = re.sub(r'\n{3,}', '\n\n', result)
     
     return result.strip()
+
+def should_escalate_to_human(agent_response, user_query, conversation_history):
+    """Detect if issue is too complex and needs human agent"""
+    response_lower = agent_response.lower()
+    query_lower = user_query.lower()
+    
+    # Escalation triggers
+    escalation_phrases = [
+        "i don't know", "i'm not sure", "i cannot", "i can't help",
+        "beyond my capability", "unable to assist", "not able to",
+        "i don't have access", "outside my scope"
+    ]
+    
+    # Complex issues that need human
+    complex_issues = [
+        "legal", "lawsuit", "lawyer", "attorney", "court",
+        "refund", "compensation", "cancel contract", "terminate service",
+        "speak to manager", "talk to supervisor", "human agent",
+        "escalate", "complaint", "formal complaint", "talk to staff", "talk to Codezilla staff",
+        "technical support", "staff"
+    ]
+    
+    # Check if agent admits inability
+    for phrase in escalation_phrases:
+        if phrase in response_lower:
+            return True
+    
+    # Check if user explicitly requests human
+    for issue in complex_issues:
+        if issue in query_lower:
+            return True
+    
+    # Check if conversation is going in circles (same issue repeated 3+ times)
+    if len(conversation_history) >= 6:
+        recent_user_messages = [msg['content'].lower() for msg in conversation_history[-6:] if msg['role'] == 'user']
+        if len(recent_user_messages) >= 3:
+            # Simple similarity check
+            if all(any(word in msg for word in query_lower.split()[:3]) for msg in recent_user_messages[-3:]):
+                return True
+    
+    return False
+
+def escalate_to_human_agent(ticket_id, agent_response):
+    """Generate human-like escalation message and update ticket status"""
+    # Update ticket status to ESCALATED
+    try:
+        table = dynamodb.Table(TICKET_TABLE_NAME)
+        table.update_item(
+            Key={'ticket_id': ticket_id},
+            UpdateExpression='SET #status = :status, escalated_at = :time',
+            ExpressionAttributeNames={'#status': 'status'},
+            ExpressionAttributeValues={
+                ':status': 'ESCALATED',
+                ':time': datetime.utcnow().isoformat()
+            }
+        )
+        print(f"Ticket {ticket_id} escalated to human agent")
+    except Exception as e:
+        print(f"Failed to update ticket status: {e}")
+    
+    return f"""I understand this is a bit more complex than the usual issues I handle. Let me pass this over to one of our Codezilla Staff who can give you more personalized assistance.
+
+Your ticket {ticket_id} has been flagged for priority human support. One of our team members will reach out to you shortly - usually within 15-30 minutes during business hours.
+
+In the meantime, is there anything else I can help document for them?"""
 
 def extract_actions(response_text):
     """Extract actionable items from the response - only when agent explicitly commits to action"""
