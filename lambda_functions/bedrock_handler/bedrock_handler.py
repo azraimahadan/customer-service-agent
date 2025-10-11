@@ -166,25 +166,34 @@ def lambda_handler(event, context):
                 try:
                     model_id = "openai.gpt-oss-120b-1:0"
                     response = bedrock_runtime.invoke_model(modelId=model_id, body=request)
+                    model_response = json.loads(response["body"].read())
+                    agent_response = model_response["choices"][0]["message"]["content"]
+                    agent_response = re.sub(r"<reasoning>.*?</reasoning>", "", agent_response, flags=re.DOTALL).strip()
+                    
+                    # Check if response is empty or invalid
+                    if not agent_response or len(agent_response.strip()) < 10:
+                        raise ValueError("LLM returned empty or invalid response")
+                    
+                    # Check if agent needs to escalate to human
+                    if should_escalate_to_human(agent_response, transcript_data['text'], conversation_history):
+                        agent_response = escalate_to_human_agent(ticket_id, agent_response)
+                    
+                except (ClientError, ValueError, KeyError) as e:
+                    # LLM/Bedrock failure - auto escalate to human
+                    print(f"🚨 LLM/Bedrock failed: {type(e).__name__} - {e}")
+                    agent_response = escalate_to_human_agent(ticket_id, "AI system unavailable")
                 except Exception as e:
-                    print(f"ERROR: Can't invoke '{model_id}'. Reason: {e}")
-                    raise
-
-                model_response = json.loads(response["body"].read())
-                agent_response = model_response["choices"][0]["message"]["content"]
-                agent_response = re.sub(r"<reasoning>.*?</reasoning>", "", agent_response, flags=re.DOTALL).strip()
-                
-                # Check if agent needs to escalate to human
-                if should_escalate_to_human(agent_response, transcript_data['text'], conversation_history):
-                    agent_response = escalate_to_human_agent(ticket_id, agent_response)
+                    # Any other error - auto escalate
+                    print(f"🚨 Unexpected AI error: {type(e).__name__} - {e}")
+                    agent_response = escalate_to_human_agent(ticket_id, "AI system error")
                 
                 save_conversation_history(session_id, prompt, agent_response)
             
         except Exception as e:
             print(f"Bedrock AI failed: {e}")
             # AI system error - escalate to human
-            agent_response = f"I'm experiencing some technical difficulties on my end. Let me connect you with one of our human agents who can help you right away with ticket {ticket_id}. They'll have full context of your issue and will reach out shortly. Is there anything else I can note for them?"
-            guardrail_blocked = True  # Skip further processing analysis_data)
+            agent_response = f"I'm experiencing some technical difficulties on my end. Let me connect you with one of our Codezilla staff who can help you right away with ticket {ticket_id}. They'll have full context of your issue and will reach out shortly. Is there anything else I can note for them?"
+            guardrail_blocked = True  # Skip further processing
         
         # Generate TTS audio with better error handling
         try:
@@ -656,7 +665,8 @@ def should_escalate_to_human(agent_response, user_query, conversation_history):
         "legal", "lawsuit", "lawyer", "attorney", "court",
         "refund", "compensation", "cancel contract", "terminate service",
         "speak to manager", "talk to supervisor", "human agent",
-        "escalate", "complaint", "formal complaint"
+        "escalate", "complaint", "formal complaint", "talk to staff", "talk to Codezilla staff",
+        "technical support", "staff"
     ]
     
     # Check if agent admits inability
@@ -697,7 +707,7 @@ def escalate_to_human_agent(ticket_id, agent_response):
     except Exception as e:
         print(f"Failed to update ticket status: {e}")
     
-    return f"""I understand this is a bit more complex than the usual issues I handle. Let me pass this over to one of our human agents who can give you more personalized assistance.
+    return f"""I understand this is a bit more complex than the usual issues I handle. Let me pass this over to one of our Codezilla Staff who can give you more personalized assistance.
 
 Your ticket {ticket_id} has been flagged for priority human support. One of our team members will reach out to you shortly - usually within 15-30 minutes during business hours.
 
